@@ -211,7 +211,51 @@ ISR (TWI_vect)
 		
 		// ----\/ ---- SLAVE RECEIVER ----\/ ----  //
 		
-		
+		case TWI_SR_LOST_ARBIT:
+		case TWI_SR_LOST_ARBIT_GENERAL_CALL:
+		case TWI_SR_GENERAL_CALL:
+		case TWI_SR_SLAW_ACK: //Handles recieved slaw and and general call in the same way
+			TWIInfo.mode = TWIMode.SlaveReciever;
+			if (RXBuffIndex < RXBuffLen)
+			{
+				TWIInfo.errorCode = TWI_NO_RELEVANT_INFO;
+				TWISendACK();
+			}
+
+		case TWI_SR_DATA_ACK:
+		case TWI_SR_DATA_ACK_GENERAL:
+			
+			// If there is more than one byte to be read, receive data byte and return an ACK
+			if (RXBuffIndex < RXBuffLen)
+			{
+				TWIReceiveBuffer[RXBuffIndex++] = TWDR;
+				TWIInfo.errorCode = TWI_NO_RELEVANT_INFO;
+				TWISendACK();
+			}
+			// Otherwise when no more data is expected, return NACK
+			else
+			{
+				TWIInfo.errorCode = TWI_NO_RELEVANT_INFO;
+				TWISendNACK();
+			}
+			break;
+
+
+		case TWI_SR_DATA_NACK:
+		case TWI_SR_DATA_NACK_GENERAL:  //No more data expected
+			TWIInfo.errorCode = TWI_NO_RELEVANT_INFO;
+			TWISendNACK();
+			break;
+
+
+
+		case TWI_SR_STOP_RECV: //Stop 
+			TWIInfo.errorCode = 0xff;
+			TWIInfo.mode = Ready;
+			break;
+
+
+
 		// TODO  IMPLEMENT SLAVE RECEIVER FUNCTIONALITY
 		
 		// ----\/ ---- SLAVE TRANSMITTER ----\/ ----  //

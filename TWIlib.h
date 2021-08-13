@@ -33,7 +33,7 @@ typedef enum {
 	RepeatedStartSent,
 	MasterTransmitter,
 	MasterReceiver,
-	SlaceTransmitter,
+	SlaveTransmitter,
 	SlaveReciever
 	} TWIMode;
 
@@ -60,7 +60,7 @@ TWIInfoStruct TWIInfo;
 #define TWI_MR_DATA_NACK		0x58 // Data received, NACK returned
 // Slave Receiver Mode
 #define TWI_SR_SLAW_ACK			0x60 // Own SLA+W received and ACK Sent
-#define TWI_SR_LOST_ARBIT_SLAW	0x68 // Lost arbitration and own SLA+W received and ACK Sent
+#define TWI_SR_LOST_ARBIT		0x68 // Lost arbitration and own SLA+W received and ACK Sent
 #define TWI_SR_GENERAL_CALL		0x70 // General call address received and ACK Sent
 #define TWI_SR_LOST_ARBIT_GENERAL_CALL 0x78 //Lost arbitration and general call adress received and ACK Sent
 #define TWI_SR_DATA_ACK			0x80 // Data received (Previously addressed) and ACK Sent
@@ -68,6 +68,12 @@ TWIInfoStruct TWIInfo;
 #define TWI_SR_DATA_ACK_GENERAL	0x90 // Data received (Previously general call) and ACK Sent
 #define TWI_SR_DATA_NACK_GENERAL 0x98 // Data received (Previously general call) and NACK Sent
 #define TWI_SR_STOP_RECV		0xA0 //Stop or repeated STart condition received while addressed as SR
+// Slave Transmitter Mode
+#define  TWI_ST_SLAW_ACK		0xA8 //Own SLA+R received and ACK Sent
+#define TWI_ST_LOST_ARBIt		0xB0 //Lost arbitration and own SLA+R received and ACK Sent
+#define TWI_ST_DATA_ACK 		0xB8 //Data Sent and ACK received
+#define  TWI_ST_DATA_NACK 		0xC0 //Data Sent and NACK received
+#define TWI_ST_DATA_LAST		0xC8 //Last data byte sent ACK received		
 
 
 // Miscellaneous States
