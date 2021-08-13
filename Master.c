@@ -6,7 +6,7 @@
 int main(void){
   // this initializes the printf/uart thingies
   printf_init(); 
-
+  
   int k=0;
   while(1){
     printf("hello %d\n", F_CPU);

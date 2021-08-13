@@ -58,6 +58,17 @@ TWIInfoStruct TWIInfo;
 #define TWI_MR_SLAR_NACK		0x48 // SLA+R sent, NACK received
 #define TWI_MR_DATA_ACK			0x50 // Data received, ACK returned
 #define TWI_MR_DATA_NACK		0x58 // Data received, NACK returned
+// Slave Receiver Mode
+#define TWI_SR_SLAW_ACK			0x60 // Own SLA+W received and ACK Sent
+#define TWI_SR_LOST_ARBIT_SLAW	0x68 // Lost arbitration and own SLA+W received and ACK Sent
+#define TWI_SR_GENERAL_CALL		0x70 // General call address received and ACK Sent
+#define TWI_SR_LOST_ARBIT_GENERAL_CALL 0x78 //Lost arbitration and general call adress received and ACK Sent
+#define TWI_SR_DATA_ACK			0x80 // Data received (Previously addressed) and ACK Sent
+#define TWI_SR_DATA_NACK		0x88 // Data received (Previously addressed) and NACK Sent
+#define TWI_SR_DATA_ACK_GENERAL	0x90 // Data received (Previously general call) and ACK Sent
+#define TWI_SR_DATA_NACK_GENERAL 0x98 // Data received (Previously general call) and NACK Sent
+#define TWI_SR_STOP_RECV		0xA0 //Stop or repeated STart condition received while addressed as SR
+
 
 // Miscellaneous States
 #define TWI_LOST_ARBIT			0x38 // Arbitration has been lost
