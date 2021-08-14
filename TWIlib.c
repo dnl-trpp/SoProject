@@ -215,20 +215,25 @@ ISR (TWI_vect)
 		case TWI_SR_LOST_ARBIT_GENERAL_CALL:
 		case TWI_SR_GENERAL_CALL:
 		case TWI_SR_SLAW_ACK: //Handles recieved slaw and and general call in the same way
-			TWIInfo.mode = TWIMode.SlaveReciever;
+			TWIInfo.mode = SlaveReciever;
 			if (RXBuffIndex < RXBuffLen)
 			{
 				TWIInfo.errorCode = TWI_NO_RELEVANT_INFO;
 				TWISendACK();
 			}
+			else
+			{
+				TWIInfo.errorCode = TWI_NO_RELEVANT_INFO;
+				TWISendNACK();
+			}
+			break;
 
-		case TWI_SR_DATA_ACK:
-		case TWI_SR_DATA_ACK_GENERAL:
-			
-			// If there is more than one byte to be read, receive data byte and return an ACK
+		case TWI_SR_DATA_ACK: // Data received (Previously addressed) and ACK Sent
+		case TWI_SR_DATA_ACK_GENERAL: // Data received (Previously general call) and ACK Sent
+			TWIReceiveBuffer[RXBuffIndex++] = TWDR;
+			// If there is more than one byte to be read, receive next data byte and return an ACK
 			if (RXBuffIndex < RXBuffLen)
 			{
-				TWIReceiveBuffer[RXBuffIndex++] = TWDR;
 				TWIInfo.errorCode = TWI_NO_RELEVANT_INFO;
 				TWISendACK();
 			}
@@ -250,17 +255,37 @@ ISR (TWI_vect)
 
 
 		case TWI_SR_STOP_RECV: //Stop 
-			TWIInfo.errorCode = 0xff;
+			TWIInfo.errorCode = 0xff; //Success
 			TWIInfo.mode = Ready;
+			TWISendTransmit(); //Clear TWINT but jump out of TWI
 			break;
-
-
-
-		// TODO  IMPLEMENT SLAVE RECEIVER FUNCTIONALITY
 		
 		// ----\/ ---- SLAVE TRANSMITTER ----\/ ----  //
 		
-		// TODO  IMPLEMENT SLAVE TRANSMITTER FUNCTIONALITY
+		case TWI_ST_LOST_ARBIT:
+		case TWI_ST_SLAW_ACK: //Own SLAW received ACK Transmitted
+			TWIInfo.mode= SlaveTransmitter;
+		case TWI_ST_DATA_ACK: //Data byte transmitted ACK Recieved
+			if (TXBuffIndex < TXBuffLen-1){
+				TWDR = TWITransmitBuffer[TXBuffIndex++];
+				TWIInfo.errorCode = TWI_NO_RELEVANT_INFO;
+				TWISendACK(); //Send and expect ACK
+			}else
+			{
+				TWDR = TWITransmitBuffer[TXBuffIndex++];
+				TWIInfo.errorCode = TWI_NO_RELEVANT_INFO;
+				TWISendNACK(); //For last byte, send and expect NACK
+
+			}
+			break;
+
+
+		case TWI_ST_DATA_NACK: //Data transmitted and NACK received (last byte or not acknowledged)
+		case TWI_ST_DATA_LAST:
+			TWIInfo.errorCode = 0xff;
+			TWIInfo.mode = Ready;
+			TWISendTransmit(); //Clear TWINT but jump out of TWI
+			break;
 		
 		// ----\/ ---- MISCELLANEOUS STATES ----\/ ----  //
 		case TWI_NO_RELEVANT_INFO: // It is not really possible to get into this ISR on this condition
