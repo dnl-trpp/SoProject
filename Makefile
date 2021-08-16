@@ -18,12 +18,10 @@
 # logout/login
 
 
-
 # !!!!!!!!!!!!!!!! MODIFY HERE !!!!!!!!!!!!!!!! 
 # put here the file containing the main() routine
 # to be uploaded on the avr
 # you can add multiple files, they will be all generated
-
 BINS=Master.elf Slave.elf
 
 # put here the additional .o files you want to generate
@@ -33,13 +31,17 @@ OBJS=./avr_common/uart.o TWIlib.o
 # put here the additional header files needed for compilation
 HEADERS=./avr_common/uart.h TWIlib.h
 
-
+# put here the additional linux executables that you want to be compiled with gcc
+EXT=Controller.exe
+ 
 # the file below contains the actual rules
 
 # !!!!!!!!!!!!!!!! MODIFY HERE !!!!!!!!!!!!!!!! 
 
 
 include ./avr_common/avr.mk
+
+
 
 
 

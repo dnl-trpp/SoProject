@@ -19,7 +19,7 @@ int serialport_read_until(int fd, char* buf, char until);
 
 
 int main(int argc, char *argv[]) 
-{
+{ 
     int fd = 0;
     int baudrate = B19200;
     char buf[100], dat[20], command[1];

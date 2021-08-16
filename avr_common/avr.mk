@@ -20,7 +20,7 @@ AVRDUDE_FLAGS += -c wiring
 
 .phony:	clean all
 
-all:	$(BINS) 
+all:	$(BINS) $(EXT)
 
 #common objects
 %.o:	%.c 
@@ -31,6 +31,8 @@ all:	$(BINS)
 
 %.elf:	%.o $(OBJS)
 	$(CC) $(CC_OPTS) -o $@ $< $(OBJS) $(LIBS)
+%.exe:	%.c
+	gcc -o $@ $<
 
 
 %.hex:	%.elf
