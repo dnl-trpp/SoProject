@@ -326,7 +326,7 @@ ISR (TWI_vect)
 		case TWI_SR_STOP_RECV: //Stop 
 			TWIInfo.errorCode = 0xff; //Success
 			TWIInfo.mode = Ready;
-			//TWISendTransmit(); //Clear TWINT but jump out of TWI
+			TWISendTransmit(); //Clear TWINT but jump out of TWI
 			break;
 		
 		// ----\/ ---- SLAVE TRANSMITTER ----\/ ----  //
@@ -353,7 +353,7 @@ ISR (TWI_vect)
 		case TWI_ST_DATA_LAST:
 			TWIInfo.errorCode = 0xff;
 			TWIInfo.mode = Ready;
-			//TWISendTransmit(); //Clear TWINT but jump out of TWI
+			TWISendTransmit(); //Clear TWINT but jump out of TWI
 			break;
 		
 		// ----\/ ---- MISCELLANEOUS STATES ----\/ ----  //

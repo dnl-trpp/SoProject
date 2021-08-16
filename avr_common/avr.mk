@@ -38,6 +38,6 @@ all:	$(BINS)
 	$(AVRDUDE) $(AVRDUDE_FLAGS) -U flash:w:$@:i #$(AVRDUDE_WRITE_EEPROM) 
 
 clean:	
-	rm -rf $(OBJS) $(BINS) *.hex *~ *.o
+	rm -rf $(OBJS) $(BINS) $(EXT) *.hex *~ *.o
 
 .SECONDARY:	$(OBJS)

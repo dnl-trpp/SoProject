@@ -20,7 +20,6 @@
 
 
 # !!!!!!!!!!!!!!!! MODIFY HERE !!!!!!!!!!!!!!!! 
-
 # put here the file containing the main() routine
 # to be uploaded on the avr
 # you can add multiple files, they will be all generated
@@ -38,6 +37,7 @@ HEADERS=./avr_common/uart.h TWIlib.h
 # the file below contains the actual rules
 
 # !!!!!!!!!!!!!!!! MODIFY HERE !!!!!!!!!!!!!!!! 
+
 
 include ./avr_common/avr.mk
 

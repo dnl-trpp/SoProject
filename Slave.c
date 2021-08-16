@@ -1,6 +1,7 @@
 #include <util/delay.h>
 #include <stdio.h>
 #include <avr/sleep.h>
+#include <avr/interrupt.h>
 #include "./avr_common/uart.h" // this includes the printf and initializes it
 #include "TWIlib.h"
 #define ADDR 1
@@ -18,9 +19,11 @@ int main(void){
 
   TWISlaveReadData(2);
 
-  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-  sleep_mode();
-  
+  //set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  //sleep_mode();
+  sei();
+  sleep_cpu();
+
   while(!isTWIReady()) {_delay_us(1);}
   if(getTWIErrorCode()==TWI_SUCCESS){
     uint8_t command= TWIReceiveBuffer[0];
