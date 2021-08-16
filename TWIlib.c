@@ -10,7 +10,7 @@
 #include "TWIlib.h"
 #include "util/delay.h"
 
-void TWIInit()
+void TWIInitMaster()
 {
 	TWIInfo.mode = Ready;
 	TWIInfo.errorCode = 0xFF;
@@ -19,6 +19,21 @@ void TWIInit()
 	TWSR = 0;
 	// Set bit rate
 	TWBR = ((F_CPU / TWI_FREQ) - 16) / 2;
+	// Enable TWI and interrupt
+	TWCR = (1 << TWIE) | (1 << TWEN);
+}
+
+void TWIInitSlave(uint8_t TWIaddr)
+{
+	TWIInfo.mode = Ready;
+	TWIInfo.errorCode = 0xFF;
+	TWIInfo.repStart = 0;
+	// Set pre-scalers (no pre-scaling)
+	TWSR = 0;
+	// Set bit rate
+	TWBR = ((F_CPU / TWI_FREQ) - 16) / 2;
+	//Set address and enable generak call
+	TWAR = (TWIaddr<<1) | 0x01;
 	// Enable TWI and interrupt
 	TWCR = (1 << TWIE) | (1 << TWEN);
 }
@@ -35,7 +50,12 @@ uint8_t isTWIReady()
 	}
 }
 
-uint8_t TWITransmitData(void *const TXdata, uint8_t dataLen, uint8_t repStart)
+uint8_t getTWIErrorCode(){
+	return TWIInfo.errorCode;
+
+}
+
+uint8_t TWIMasterTransmitData(void *const TXdata, uint8_t dataLen, uint8_t repStart)
 {
 	if (dataLen <= TXMAXBUFLEN)
 	{
@@ -75,7 +95,7 @@ uint8_t TWITransmitData(void *const TXdata, uint8_t dataLen, uint8_t repStart)
 	return 0;
 }
 
-uint8_t TWIReadData(uint8_t TWIaddr, uint8_t bytesToRead, uint8_t repStart)
+uint8_t TWIMasterReadData(uint8_t TWIaddr, uint8_t bytesToRead, uint8_t repStart)
 {
 	// Check if number of bytes to read can fit in the RXbuffer
 	if (bytesToRead < RXMAXBUFLEN)
@@ -88,13 +108,62 @@ uint8_t TWIReadData(uint8_t TWIaddr, uint8_t bytesToRead, uint8_t repStart)
 		// Shift the address and AND a 1 into the read write bit (set to write mode)
 		TXdata[0] = (TWIaddr << 1) | 0x01;
 		// Use the TWITransmitData function to initialize the transfer and address the slave
-		TWITransmitData(TXdata, 1, repStart);
+		TWIMasterTransmitData(TXdata, 1, repStart);
 	}
 	else
 	{
 		return 0;
 	}
 	return 1;
+}
+
+//Get ready to receive something
+uint8_t TWISlaveReadData(uint8_t bytesToRead){
+	
+	if(bytesToRead < RXMAXBUFLEN)
+	{
+		// Wait until ready
+		while (!isTWIReady()) {_delay_us(1);}
+		RXBuffIndex =0;
+		RXBuffLen = bytesToRead;
+		TWIInfo.mode = Initializing;
+		TWISendACK(); //Get ready to repond with ACK;
+
+	}else{
+		return 0;
+	}
+	return 1;
+
+
+
+}
+//Get ready to transmit something
+uint8_t TWISlaveSendData(void *const TXdata, uint8_t dataLen){
+	
+	if(dataLen <= TXMAXBUFLEN)
+	{			
+		TWIInfo.mode = Initializing;
+		// Wait until ready
+		while (!isTWIReady()) {_delay_us(1);}
+		// Copy data into the transmit buffer
+		uint8_t *data = (uint8_t *)TXdata;
+		for (int i = 0; i < dataLen; i++)
+		{
+			TWITransmitBuffer[i] = data[i];
+		}
+		// Copy transmit info to global variables
+		TXBuffLen = dataLen;
+		TXBuffIndex = 0;
+		TWISendACK(); //Get ready to repond with ACK;
+
+	}else
+	{
+		return 0;
+	}
+	return 1;
+
+
+
 }
 
 ISR (TWI_vect)
@@ -257,7 +326,7 @@ ISR (TWI_vect)
 		case TWI_SR_STOP_RECV: //Stop 
 			TWIInfo.errorCode = 0xff; //Success
 			TWIInfo.mode = Ready;
-			TWISendTransmit(); //Clear TWINT but jump out of TWI
+			//TWISendTransmit(); //Clear TWINT but jump out of TWI
 			break;
 		
 		// ----\/ ---- SLAVE TRANSMITTER ----\/ ----  //
@@ -284,7 +353,7 @@ ISR (TWI_vect)
 		case TWI_ST_DATA_LAST:
 			TWIInfo.errorCode = 0xff;
 			TWIInfo.mode = Ready;
-			TWISendTransmit(); //Clear TWINT but jump out of TWI
+			//TWISendTransmit(); //Clear TWINT but jump out of TWI
 			break;
 		
 		// ----\/ ---- MISCELLANEOUS STATES ----\/ ----  //

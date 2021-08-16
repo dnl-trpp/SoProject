@@ -90,9 +90,15 @@ TWIInfoStruct TWIInfo;
 #define TWISendNACK()		(TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWIE)) // FOR MR mode. Resume a transfer, ensure that TWI and interrupts are enabled but DO NOT respond with an ACK if the device is addressed as a slave or after it receives a byte.
 
 // Function declarations
-uint8_t TWITransmitData(void *const TXdata, uint8_t dataLen, uint8_t repStart);
-void TWIInit(void);
-uint8_t TWIReadData(uint8_t TWIaddr, uint8_t bytesToRead, uint8_t repStart);
+uint8_t TWIMasterTransmitData(void *const TXdata, uint8_t dataLen, uint8_t repStart);
+void TWIInitMaster(void);
+uint8_t TWIMasterReadData(uint8_t TWIaddr, uint8_t bytesToRead, uint8_t repStart);
 uint8_t isTWIReady(void);
+uint8_t TWISlaveReadData(uint8_t bytesToRead);
+uint8_t TWISlaveSendData(void *const TXdata, uint8_t dataLen);
+void TWIInitSlave(uint8_t TWIaddr);
+uint8_t getTWIErrorCode(void);
+
+
 
 #endif // TWICOMMS_H_ 
