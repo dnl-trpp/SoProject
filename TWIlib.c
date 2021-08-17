@@ -291,7 +291,7 @@ ISR (TWI_vect)
 				TWISendACK();
 			}
 			else
-			{
+			{ 
 				TWIInfo.errorCode = TWI_NO_RELEVANT_INFO;
 				TWISendNACK();
 			}
@@ -317,7 +317,8 @@ ISR (TWI_vect)
 
 		case TWI_SR_DATA_NACK:
 		case TWI_SR_DATA_NACK_GENERAL:  //No more data expected
-			TWIInfo.errorCode = TWI_NO_RELEVANT_INFO;
+			TWIInfo.errorCode = TWI_STATUS;
+			TWIInfo.mode = Ready;
 			TWISendNACK();
 			break;
 
