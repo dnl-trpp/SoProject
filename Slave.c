@@ -19,12 +19,15 @@ int main(void){
 
   TWISlaveReadData(2);
 
-  //set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-  //sleep_mode();
+  printf("Going to sleep");
+  _delay_ms(1000);
   sei();
-  sleep_cpu();
+  //set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  sleep_mode();
 
-  while(!isTWIReady()) {_delay_us(1);}
+  while(!isTWIReady()) {
+    printf("I'm locked");
+    _delay_us(1);}
   if(getTWIErrorCode()==TWI_SUCCESS){
     uint8_t command= TWIReceiveBuffer[0];
     uint8_t payload= TWIReceiveBuffer[1];
@@ -35,7 +38,7 @@ int main(void){
         break;
        
       case SAMPLE:
-
+      
       case APPLY:
 
       case GET:
@@ -43,6 +46,9 @@ int main(void){
       default:
         printf("Unknown command");
     }
+  }
+  else{
+    printf("Something went wrong: %x", getTWIErrorCode());
   }
   
 }

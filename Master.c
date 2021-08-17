@@ -15,15 +15,20 @@ int main(void){
   sei();
 
   //printf("Send char to Sending something\n");
-  //printf("Ready\n");
+  printf("Ready...\n");
   char get=usart_getchar(); 
+
   uint8_t command[3];
   command[0] = (1<<1); //Address or general call + W bit (0)
   command[1] =  SET;// Sample, get ,set or apply
   command[2] = 0b00001010;//Pins to set
   TWIMasterTransmitData(command,3,0);
-  printf("Hello: %c\n",get);
-  //printf("Char received: %c, sent command\n",get);
-  
+   while(!isTWIReady()) {_delay_us(1);}
+   if(getTWIErrorCode() == TWI_SUCCESS){
+      printf("Successfully transmitted");
+   }
+   else{
+     printf("Something went wrong: %x", getTWIErrorCode());
+   }
   
 }

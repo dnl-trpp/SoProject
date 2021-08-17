@@ -9,9 +9,6 @@
 #include <sys/ioctl.h>
 #include <getopt.h>
 
-
-
-void usage(void);
 int serialport_init(const char* serialport, int baud);
 int serialport_writebyte(int fd, uint8_t b);
 int serialport_write(int fd, const char* str);
