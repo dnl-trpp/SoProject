@@ -19,29 +19,72 @@ int main(int argc, char *argv[])
 { 
     int fd = 0;
     int baudrate = B19200;
-    char buf[100], dat[20], command[1];
+    char buf[100], dat[20], command[20];
     int rc,n;
 
-    fd = serialport_init("/dev/ttyACM0", baudrate);
-            if(fd==-1) return -1;
+    printf("Connecting to /dev/ttyACM0...");
+    fflush(stdout);
+    //fd = serialport_init("/dev/ttyACM0", baudrate);
+    //        if(fd==-1) return -1;
 
-    usleep(3000 * 1000);
-            
-      while(1) {
-            strcpy(dat, "0\0");
-            fgets(command,2,stdin);
-            if(command[0] == 's') {
-                dat[0]='s';
+    //sleep(3);
+    printf("[SUCCESS]\n");
+
+    while(1) {
+
+        printf("> ");
+        fgets(command,20,stdin);
+        if(strncmp(command,"help",4)==0){
+            printf("Usage:\n");
+            printf("-- set [addr] [value]\n");
+            printf("-- get [addr]\n");
+            printf("-- apply\n");
+            printf("-- sample\n");
+
+        }
+        else if(strncmp(command,"set",3)==0){
+            int addr=0;
+            int value=-1;
+            sscanf(command,"set %d %i" ,&addr, &value);
+            if(addr<=0 || addr>127 || value==-1 || value> 255){
+                printf("Invalid format. \nUsage:\n");
+                printf("set [addr] [value]\n");
             }
-            rc = serialport_write(fd, dat);
-            if(rc==-1) return -1;
-            //printf("Waiting until UART buffer clears: %d\n", tcdrain(fd));
-            n = serialport_read_until(fd, buf, '\n');
-            printf("wrote %d bytes, read %d bytes: %s\n", rc, n, buf);
-      }
+            //TODO Instruct master to set addr to value
+        }
+        else if(strncmp(command,"sample",6)==0){
+            //TODO Instruct master to sample values
+        }
+        else if(strncmp(command,"get",3)==0){
+            int addr=0;
+            sscanf(command,"get %d" ,&addr);
+            if(addr<=0 || addr>127){
+                printf("Invalid format. \nUsage:\n");
+                printf("get [addr]\n");
+            }
+            //TODO Instruct master to get previously sampled values from addr
+        }else if(strncmp(command,"apply",5)==0){
+            //TODO Instruct master to apply previously set values
+
+        }else{
+            printf("Unknown command, type help for usage\n");
+        }
+
+       /* strcpy(dat, "0\0");
+        if(command[0] == 's') {
+            dat[0]='s';
+        }
+        rc = serialport_write(fd, dat);
+        if(rc==-1) return -1;
+        //printf("Waiting until UART buffer clears: %d\n", tcdrain(fd));
+        n = serialport_read_until(fd, buf, '\n');
+        printf("wrote %d bytes, read %d bytes: %s\n", rc, n, buf);*/
+    }
+
+
     close(fd);
     exit(EXIT_SUCCESS);    
-} // end main
+} 
 
     
 
@@ -126,14 +169,14 @@ int serialport_init(const char* serialport, int baud)
     cfsetispeed(&toptions, brate);
     cfsetospeed(&toptions, brate);
     // 8N1
-    toptions.c_cflag &= ~PARENB;
-    toptions.c_cflag &= ~CSTOPB;
-    toptions.c_cflag &= ~CSIZE;
-    toptions.c_cflag |= CS8;
+    toptions.c_cflag &= ~PARENB; //No parity
+    toptions.c_cflag &= ~CSTOPB; //One Stop
+    toptions.c_cflag &= ~CSIZE; //Disable Charsize mask
+    toptions.c_cflag |= CS8; //8 data bits
     // no flow control
-    toptions.c_cflag &= ~CRTSCTS;
+    toptions.c_cflag &= ~CRTSCTS; //Disable hardawre flow control
     toptions.c_cflag |= CREAD | CLOCAL;  // turn on READ & ignore ctrl lines
-    toptions.c_iflag &= ~(IXON | IXOFF | IXANY); // turn off s/w flow ctrl
+    toptions.c_iflag &= ~(IXON | IXOFF | IXANY); // turn off software flow ctrl
     toptions.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG); // make raw
     toptions.c_oflag &= ~OPOST; // make raw
     // see: http://unixwiz.net/techtips/termios-vmin-vtime.html

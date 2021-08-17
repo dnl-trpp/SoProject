@@ -12,7 +12,11 @@ master -> all: "apply" the slaves apply the saved pin status to the outputs
 The slaves react only to interrupts. they are in halt status. The master offers an interface to the host (PC) program to control the slaves, via UART. All protocols are binary, packet based
 
 # How to use
-First of all, compile everything using
+First of all, install dependencies with:
+```
+sudo apt-get install arduino arduino-mk
+```
+Then compile everything using:
 ```
 make
 ```
