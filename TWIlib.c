@@ -142,7 +142,6 @@ uint8_t TWISlaveSendData(void *const TXdata, uint8_t dataLen){
 	
 	if(dataLen <= TXMAXBUFLEN)
 	{			
-		TWIInfo.mode = Initializing;
 		// Wait until ready
 		while (!isTWIReady()) {_delay_us(1);}
 		// Copy data into the transmit buffer
@@ -154,6 +153,7 @@ uint8_t TWISlaveSendData(void *const TXdata, uint8_t dataLen){
 		// Copy transmit info to global variables
 		TXBuffLen = dataLen;
 		TXBuffIndex = 0;
+	    TWIInfo.mode = Initializing;
 		TWISendACK(); //Get ready to repond with ACK;
 
 	}else
@@ -333,7 +333,7 @@ ISR (TWI_vect)
 		// ----\/ ---- SLAVE TRANSMITTER ----\/ ----  //
 		
 		case TWI_ST_LOST_ARBIT:
-		case TWI_ST_SLAW_ACK: //Own SLAW received ACK Transmitted
+		case TWI_ST_SLAW_ACK: //Own SLAR received ACK Transmitted
 			TWIInfo.mode= SlaveTransmitter;
 		case TWI_ST_DATA_ACK: //Data byte transmitted ACK Recieved
 			if (TXBuffIndex < TXBuffLen-1){
