@@ -35,6 +35,32 @@ make Slave.hex
 
 >Another note: The makefile is configured to work with Atmega2560, some minor tweaks can make it work with other compatible boards too.
 
+# The protocols
+## Master to Slaves Application Protocol
+
+ Master Comunicates wih slaves using a custom protocol over TWI. The protocol consists of 4 packet types of length 2 bytes:
+ ```
+-----------------
+| type | payload |
+-----------------
+16      8       0
+ ```
+ Type can be one of 4 types:
+ * Type 0x01 :  SAMPLE
+ * Type 0x02 :  SET
+ * Type 0x03 :  GET
+ * Type 0x04 :  APPLY
+
+`SET` and `GET` Packets need to address a specific slave while `SAMPLE` and `APPLY` packets should be sent in broadcast using TWI general call.
+
+Payload is used in `SET` packets and rapresents the pin configuration of slave's `PORTB`
+
+After sending a `GET` Packet another TWI request needs to be made as Master Receiver and a byte rapresenting the sampled `PORTA` is received.
+ 
+ >Note: Payload is meaningfull only in the case of `SET` Packets and should be set to `0x00` in other cases
+
+ 
+
 # External resources
 Some useful resources I used to complete this project. 
 * First of all, Atmega [documentation](http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2549-8-bit-AVR-Microcontroller-ATmega640-1280-1281-2560-2561_datasheet.pdf) (Chapter 24)
