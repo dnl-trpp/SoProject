@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <avr/interrupt.h>
-#include "./avr_common/uart.h" // this includes the printf and initializes it
+#include "./avr_common/uart.h"
 #include "TWIlib.h"
 #define SAMPLE 1
 #define GET 2

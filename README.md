@@ -36,7 +36,7 @@ make Slave.hex
 >Another note: The makefile is configured to work with Atmega2560, some minor tweaks can make it work with other compatible boards too.
 
 # The protocols
-## Master to Slaves Application Protocol
+## Master to Slaves Application Protocol (TWI)
 
  Master Comunicates with slaves using a custom protocol over TWI. The protocol consists of 4 packet types of length 2 bytes:
  ```
@@ -59,18 +59,57 @@ After sending a `GET` Packet another TWI request needs to be made as Master Rece
 
  >Note: Payload is meaningfull only in the case of `SET` Packets and should be set to `0x00` in other cases
 
-## Pc to Master Proocol
-Master Accepts packets from PCsoftware via uart. Theese packetsinstruct the Master to send one ofthe above described packets to theslaves. Packets are variablelength 1-3 bytes.
+## Pc to Master Proocol (USART)
+Master Accepts packets from PCsoftware via uart. Theese packets instruct the Master to send one ofthe above described packets to theslaves. Packets are variablelength 1-3 bytes.
 ```
 ---------------------------
 | type | address | value  |
 ---------------------------
 ```
 Types are:
-* `m` : in this case no additional byte is needed. It instructs the master to send a `SAMPLE` packet.
-* `s` : in this case both address and payload are needed. It instructs the master to send a `SET` packet to `address` with `value` as payload.
-* `g` : in this case just address is needed. It instructs the master to send a `GET` packet to `address` and receive a response. The one byte response will be sent back to PC.
-* `a` : no additional bytes needed. It instructs the master to send an `APPLY` packet.
+* `m` : in this case no additional byte is needed. It instructs the master to send a `SAMPLE` packet. Master responds with `0xff` in case of success or with a TWI_STATUS byte otherwise.
+* `s` : in this case both address and payload are needed. It instructs the master to send a `SET` packet to `address` with `value` as payload. Master responds with `0xff` in case of success or with a TWI_STATUS byte otherwise.
+* `g` : in this case just address is needed. It instructs the master to send a `GET` packet to `address` and receive a response. Master responds with `0xff` in case of success or with a TWI_STATUS byte otherwise. In case Master responds with `0xff` another additional byte is sent containing the sampled data.
+* `a` : no additional bytes needed. It instructs the master to send an `APPLY` packet. Master responds with `0xff` in case of success or with a TWI_STATUS byte otherwise.
+
+# Usage of Controller Program
+This program is an executable file that implements the PC to Master protocol and offers an interface to the user. Executing without arguments connects to `/dev/ttyACM0` otherwise first argument is used as target.
+
+The program accepts the following commands:
+
+* `help` : prints usage
+* `set [addr] [value]` : instructs the master to send a `SET` packet to `addr` with `value` as payload. `addr` and `value` can be decimal or hex (prefix with `0x`)
+* `get [addr]` : instructs master to get previously sampled values from `addr` and prints the returned data. `addr` can be decimal or hex (prefix with `0x`)
+* `sample` : instructs master to send a `SAMPLE` packet
+* `apply` : instructs master to send a `APPLY` packet
+
+Here is an example of execution:
+```
+./Controller.exe
+Connecting to /dev/ttyACM0...
+[SUCCESS]
+> help
+Usage:
+-- set [addr] [value]
+-- get [addr]
+-- apply
+-- sample
+> set 1 0xff
+Command sent sucesfully
+> apply
+Command sent sucesfully
+> sample
+Command sent sucesfully
+> get 1
+Command sent sucesfully
+Master read d5
+
+```
+
+# Schematics
+See Schematics folder
+
+
 
 # External resources
 Some useful resources I used to complete this project. 
