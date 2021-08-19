@@ -38,7 +38,7 @@ make Slave.hex
 # The protocols
 ## Master to Slaves Application Protocol
 
- Master Comunicates wih slaves using a custom protocol over TWI. The protocol consists of 4 packet types of length 2 bytes:
+ Master Comunicates with slaves using a custom protocol over TWI. The protocol consists of 4 packet types of length 2 bytes:
  ```
 -----------------
 | type | payload |
@@ -56,10 +56,21 @@ make Slave.hex
 Payload is used in `SET` packets and rapresents the pin configuration of slave's `PORTB`
 
 After sending a `GET` Packet another TWI request needs to be made as Master Receiver and a byte rapresenting the sampled `PORTA` is received.
- 
+
  >Note: Payload is meaningfull only in the case of `SET` Packets and should be set to `0x00` in other cases
 
- 
+## Pc to Master Proocol
+Master Accepts packets from PCsoftware via uart. Theese packetsinstruct the Master to send one ofthe above described packets to theslaves. Packets are variablelength 1-3 bytes.
+```
+---------------------------
+| type | address | value  |
+---------------------------
+```
+Types are:
+* `m` : in this case no additional byte is needed. It instructs the master to send a `SAMPLE` packet.
+* `s` : in this case both address and payload are needed. It instructs the master to send a `SET` packet to `address` with `value` as payload.
+* `g` : in this case just address is needed. It instructs the master to send a `GET` packet to `address` and receive a response. The one byte response will be sent back to PC.
+* `a` : no additional bytes needed. It instructs the master to send an `APPLY` packet.
 
 # External resources
 Some useful resources I used to complete this project. 

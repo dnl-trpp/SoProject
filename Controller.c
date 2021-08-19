@@ -13,6 +13,7 @@ int serialport_init(const char* serialport, int baud);
 int serialport_writebyte(int fd, uint8_t b);
 int serialport_write(int fd, const char* str);
 int serialport_read_until(int fd, char* buf, char until);
+int serialport_readbyte(int fd, uint8_t* b);
 
 
 int main(int argc, char *argv[]) 
@@ -24,10 +25,10 @@ int main(int argc, char *argv[])
 
     printf("Connecting to /dev/ttyACM0...");
     fflush(stdout);
-    //fd = serialport_init("/dev/ttyACM0", baudrate);
-    //        if(fd==-1) return -1;
+    fd = serialport_init("/dev/ttyACM0", baudrate);
+    if(fd==-1) return -1;
 
-    //sleep(3);
+    sleep(1);
     printf("[SUCCESS]\n");
 
     while(1) {
@@ -42,6 +43,8 @@ int main(int argc, char *argv[])
             printf("-- sample\n");
 
         }
+
+        //Handle SET
         else if(strncmp(command,"set",3)==0){
             int addr=0;
             int value=-1;
@@ -49,12 +52,58 @@ int main(int argc, char *argv[])
             if(addr<=0 || addr>127 || value==-1 || value> 255){
                 printf("Invalid format. \nUsage:\n");
                 printf("set [addr] [value]\n");
+                
             }
-            //TODO Instruct master to set addr to value
+            else{
+ 
+                if(serialport_writebyte(fd,'s')==-1) {
+                    perror("Can't write byte to uart\n");
+                    return -1;
+                }
+                if(serialport_writebyte(fd,addr)==-1) {
+                    perror("Can't write byte to uart\n");
+                    return -1;
+                }
+                if(serialport_writebyte(fd,value)==-1) {
+                    perror("Can't write byte to uart\n");
+                    return -1;
+                }
+                uint8_t r;
+                if(serialport_readbyte(fd,&r)==-1){
+                    perror("Can't read byte from uart\n");
+                    return -1;
+                }
+                if(r==0xff){
+                    printf("Command sent sucesfully\n");
+                }
+                else{
+                    printf("Master had troubles sending this command\n");
+                }
+            }
         }
+
+        //Handle SAMPLE
         else if(strncmp(command,"sample",6)==0){
-            //TODO Instruct master to sample values
+
+            if(serialport_writebyte(fd,'m')==-1) {
+                perror("Can't write byte to uart\n");
+                return -1;
+            }
+            uint8_t r;
+            if(serialport_readbyte(fd,&r)==-1){
+                perror("Can't read byte from uart\n");
+                return -1;
+            }
+            if(r==0xff){
+                printf("Command sent sucesfully\n");
+            }
+            else{
+                printf("Master had troubles sending this command\n");
+            }
+
         }
+
+        //Handle GET
         else if(strncmp(command,"get",3)==0){
             int addr=0;
             sscanf(command,"get %d" ,&addr);
@@ -62,11 +111,55 @@ int main(int argc, char *argv[])
                 printf("Invalid format. \nUsage:\n");
                 printf("get [addr]\n");
             }
-            //TODO Instruct master to get previously sampled values from addr
-        }else if(strncmp(command,"apply",5)==0){
-            //TODO Instruct master to apply previously set values
+            else{
+ 
+                if(serialport_writebyte(fd,'g')==-1) {
+                    perror("Can't write byte to uart\n");
+                    return -1;
+                }
+                if(serialport_writebyte(fd,addr)==-1) {
+                    perror("Can't write byte to uart\n");
+                    return -1;
+                }
+                uint8_t r;
+                if(serialport_readbyte(fd,&r)==-1){
+                    perror("Can't read byte from uart\n");
+                    return -1;
+                }
+                if(r==0xff){
+                    printf("Command sent sucesfully\n");
+                    if(serialport_readbyte(fd,&r)==-1){
+                        perror("Can't read byte from uart\n");
+                        return -1;
+                    }
+                    printf("Master read %x\n",r);
+                }
+                else{
+                    printf("Master had troubles sending this command\n");
+                }
+            }
+        }
 
-        }else{
+        //Handle APPLY
+        else if(strncmp(command,"apply",5)==0){
+            if(serialport_writebyte(fd,'a')==-1) {
+                perror("Can't write byte to uart\n");
+                return -1;
+            }
+            uint8_t r;
+            if(serialport_readbyte(fd,&r)==-1){
+                perror("Can't read byte from uart\n");
+                return -1;
+            };
+            if(r==0xff){
+                printf("Command sent sucesfully\n");
+            }
+            else{
+                printf("Master had troubles sending this command\n");
+            }
+
+        }
+        else{
             printf("Unknown command, type help for usage\n");
         }
 
@@ -97,6 +190,21 @@ int serialport_writebyte( int fd, uint8_t b)
     return 0;
 }
 
+int serialport_readbyte(int fd, uint8_t* b)
+
+{
+    int n=-1;
+    do { 
+        int n = read(fd, b, 1);  // read a char at a time
+        if( n==-1) return -1;    // couldn't read
+        if( n==0 ) {
+            usleep( 10 * 1000 ); // wait 10 msec try again
+            continue;
+        }
+        
+    } while( n>0 );
+    return 1;
+}
 
 
 int serialport_write(int fd, const char* str)

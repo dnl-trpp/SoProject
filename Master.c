@@ -10,32 +10,30 @@
 #define APPLY 4
 
 int main(void){
-  // this initializes the printf/uart thingies
-  printf_init(); 
+  
+  printf_init();  // initializes uart
   TWIInitMaster();
   sei();
   
-  //m sample s set a apply g get
   while(1){
-    printf("Waiting for command...\n");
+ 
     char usartData=usart_getchar(); 
     uint8_t TXData[3];
-    char addr[2];
-    addr[1]='\0';
+
     switch(usartData){
 
       case 's':
-        addr[0] =usart_getchar();
-        TXData[0] = (atoi(addr)<<1); //Address + W bit (0)
+        
+        TXData[0] = (usart_getchar()<<1);  //Address + W bit (0)
         TXData[1] =  SET;                 // Sample, get ,set or apply
         TXData[2] = usart_getchar();      //Pins to set
         TWIMasterTransmitData(TXData,3,0);
         while(!isTWIReady()) {_delay_us(1);}
         if(getTWIErrorCode() == TWI_SUCCESS){
-            printf("Successfully transmitted\n");
+            usart_putchar(0xFF);
         }
         else{
-            printf("Something went wrong: %x\n", getTWIErrorCode());
+            usart_putchar(getTWIErrorCode());
         }
         break;
       
@@ -47,17 +45,17 @@ int main(void){
         TWIMasterTransmitData(TXData,3,0);
         while(!isTWIReady()) {_delay_us(1);}
         if(getTWIErrorCode() == TWI_SUCCESS){
-            printf("Successfully transmitted\n");
+            usart_putchar(0xFF);
         }
         else{
-          printf("Something went wrong: %x\n", getTWIErrorCode());
+            usart_putchar(getTWIErrorCode());
         }
         break;
 
 
       case 'g':
-        addr[0] =usart_getchar();
-        TXData[0] = (atoi(addr)<<1); //Address + W bit (0)
+
+        TXData[0] = (usart_getchar()<<1); //Address + W bit (0)
         TXData[1] =  GET;                 // Sample, get ,set or apply
         TXData[2] = 0x00;                 //No payload for Get
         TWIMasterTransmitData(TXData,3,0);
@@ -66,10 +64,11 @@ int main(void){
         TWIMasterReadData(1,1,0);
         while(!isTWIReady()) { _delay_us(1);}
         if(getTWIErrorCode() == TWI_SUCCESS){    
-            printf("Successfully Got data: %x\n",TWIReceiveBuffer[0]);
+            usart_putchar(0xFF);
+            usart_putchar(TWIReceiveBuffer[0]);
         }
         else{
-          printf("Something went wrong: %x\n", getTWIErrorCode());
+            usart_putchar(getTWIErrorCode());
         }
         break;
 
@@ -81,15 +80,15 @@ int main(void){
         TWIMasterTransmitData(TXData,3,0);
         while(!isTWIReady()) {_delay_us(1);}
         if(getTWIErrorCode() == TWI_SUCCESS){
-            printf("Successfully transmitted\n");
+            usart_putchar(0xFF);
         }
         else{
-          printf("Something went wrong: %x\n", getTWIErrorCode());
+            usart_putchar(getTWIErrorCode());
         }
         break;
       
       default:
-         printf("Unknown command\n");
+            usart_putchar(0xFF);
     }
   }
 }
