@@ -18,7 +18,7 @@ int main(void){
   while(1){
  
     char usartData=usart_getchar(); 
-    uint8_t TXData[3];
+    uint8_t TXData[4];
 
     switch(usartData){
 
@@ -27,7 +27,8 @@ int main(void){
         TXData[0] = (usart_getchar()<<1);  //Address + W bit (0)
         TXData[1] =  SET;                 // Sample, get ,set or apply
         TXData[2] = usart_getchar();      //Pins to set
-        TWIMasterTransmitData(TXData,3,0);
+        TXData[3] = TXData[1]+TXData[2];  //Checksum
+        TWIMasterTransmitData(TXData,4,0);
         while(!isTWIReady()) {_delay_us(1);}
         if(getTWIErrorCode() == TWI_SUCCESS){
             usart_putchar(0xFF);
@@ -42,7 +43,8 @@ int main(void){
         TXData[0] =   0x00;                  //General call + W bit (0)
         TXData[1] =  SAMPLE;                 // Sample, get ,set or apply
         TXData[2] =   0x00;                  //No payload for SAMPLE
-        TWIMasterTransmitData(TXData,3,0);
+        TXData[3] = TXData[1]+TXData[2];  //Checksum
+        TWIMasterTransmitData(TXData,4,0);   
         while(!isTWIReady()) {_delay_us(1);}
         if(getTWIErrorCode() == TWI_SUCCESS){
             usart_putchar(0xFF);
@@ -58,7 +60,8 @@ int main(void){
         TXData[0] = (usart_getchar()<<1); //Address + W bit (0)
         TXData[1] =  GET;                 // Sample, get ,set or apply
         TXData[2] = 0x00;                 //No payload for Get
-        TWIMasterTransmitData(TXData,3,0);
+        TXData[3] = TXData[1]+TXData[2];  //Checksum
+        TWIMasterTransmitData(TXData,4,0);
         while(!isTWIReady()) {_delay_us(1);}
         _delay_ms(100);
         TWIMasterReadData(1,1,0);
@@ -77,7 +80,8 @@ int main(void){
         TXData[0] =   0x00;                  //General call + W bit (0)
         TXData[1] =  APPLY;                 // Sample, get ,set or apply
         TXData[2] =   0x00;                  //No payload for APPLY
-        TWIMasterTransmitData(TXData,3,0);
+        TXData[3] = TXData[1]+TXData[2];  //Checksum
+        TWIMasterTransmitData(TXData,4,0);
         while(!isTWIReady()) {_delay_us(1);}
         if(getTWIErrorCode() == TWI_SUCCESS){
             usart_putchar(0xFF);

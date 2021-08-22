@@ -38,12 +38,12 @@ make Slave.hex
 # The protocols
 ## Master to Slaves Application Protocol (TWI)
 
- Master Comunicates with slaves using a custom protocol over TWI. The protocol consists of 4 packet types of length 2 bytes:
+ Master Comunicates with slaves using a custom protocol over TWI. The protocol consists of 4 packet types of length 3 bytes:
  ```
------------------
-| type | payload |
------------------
-16      8       0
+----------------------------
+| type | payload | checksum |
+----------------------------
+24     16        8          0
  ```
  Type can be one of 4 types:
  * Type 0x01 :  SAMPLE
@@ -54,6 +54,8 @@ make Slave.hex
 `SET` and `GET` Packets need to address a specific slave while `SAMPLE` and `APPLY` packets should be sent in broadcast using TWI general call.
 
 Payload is used in `SET` packets and rapresents the pin configuration of slave's `PORTB`
+
+Last byte of data is a checksum, computed simply by adding type and payload togheter.Slave only processes command if the checksum is right.
 
 After sending a `GET` Packet another TWI request needs to be made as Master Receiver and a byte rapresenting the sampled `PORTA` is received.
 

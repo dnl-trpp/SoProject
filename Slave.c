@@ -23,7 +23,7 @@ int main(void){
 
   while(1){
 
-      TWISlaveReadData(2);
+      TWISlaveReadData(3);
       //set_sleep_mode(SLEEP_MODE_PWR_DOWN);
       sleep_mode();
 
@@ -33,27 +33,30 @@ int main(void){
 
         uint8_t command= TWIReceiveBuffer[0];
         uint8_t payload= TWIReceiveBuffer[1];
+        uint8_t checksum= TWIReceiveBuffer[2];
+        
+        if(((command+payload)&0xff)==checksum){
+          switch(command){
 
-        switch(command){
+            case SET:
+              toSet = payload;
+              break;
+            
+            case SAMPLE:
+              sampled = PINA;
+              break;
+            
+            case APPLY:
+              PORTB = toSet;
+              break;
 
-          case SET:
-            toSet = payload;
-            break;
-          
-          case SAMPLE:
-            sampled = PINA;
-            break;
-          
-          case APPLY:
-            PORTB = toSet;
-            break;
-
-          case GET: ;
-            uint8_t data[1];
-            data[0]= sampled;
-            TWISlaveSendData(data,1);
-            break;
-    
+            case GET: ;
+              uint8_t data[1];
+              data[0]= sampled;
+              TWISlaveSendData(data,1);
+              break;
+      
+          }
         }
     }
     _delay_ms(1);
