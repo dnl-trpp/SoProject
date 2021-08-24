@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
                     return -1;
                 }
                 if(r==0xff){
-                    printf("Command sent sucesfully\n");
+                    printf("Command sent successfully\n");
                 }
                 else{
                     printf("Master had troubles sending this command, ErrorCode:%hhx\n",r);
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
                 return -1;
             }
             if(r==0xff){
-                printf("Command sent sucesfully\n");
+                printf("Command sent successfully\n");
             }
             else{
                 printf("Master had troubles sending this command, ErrorCode:%hhx\n",r);
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
                     return -1;
                 }
                 if(r==0xff){
-                    printf("Command sent sucesfully\n");
+                    printf("Command sent successfully\n");
                     if(serialport_readbyte(fd,&r)==-1){
                         perror("Can't read byte from uart\n");
                         return -1;
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
                 return -1;
             };
             if(r==0xff){
-                printf("Command sent sucesfully\n");
+                printf("Command sent successfully\n");
             }
             else{
                 printf("Master had troubles sending this command, ErrorCode:%hhx\n",r);

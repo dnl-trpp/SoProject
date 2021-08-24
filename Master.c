@@ -19,6 +19,7 @@ int main(void){
  
     char usartData=usart_getchar(); 
     uint8_t TXData[4];
+    uint8_t addr;
 
     switch(usartData){
 
@@ -57,22 +58,28 @@ int main(void){
 
       case 'g':
 
-        TXData[0] = (usart_getchar()<<1); //Address + W bit (0)
+        addr = usart_getchar();
+        TXData[0] = (addr<<1);            //Address + W bit (0)
         TXData[1] =  GET;                 // Sample, get ,set or apply
         TXData[2] = 0x00;                 //No payload for Get
         TXData[3] = TXData[1]+TXData[2];  //Checksum
         TWIMasterTransmitData(TXData,4,0);
         while(!isTWIReady()) {_delay_us(1);}
-        _delay_ms(100);
-        TWIMasterReadData(1,1,0);
-        while(!isTWIReady()) { _delay_us(1);}
-        if(getTWIErrorCode() == TWI_SUCCESS){    
-            usart_putchar(0xFF);
-            usart_putchar(TWIReceiveBuffer[0]);
+        if(getTWIErrorCode() == TWI_SUCCESS){
+          _delay_ms(100);
+          TWIMasterReadData(addr,1,0);
+          while(!isTWIReady()) { _delay_us(1);}
+          if(getTWIErrorCode() == TWI_SUCCESS){    
+              usart_putchar(0xFF);
+              usart_putchar(TWIReceiveBuffer[0]);
+          }
+          else{
+              usart_putchar(getTWIErrorCode());
+          }
+        }else{
+           usart_putchar(getTWIErrorCode());
         }
-        else{
-            usart_putchar(getTWIErrorCode());
-        }
+        
         break;
 
 
