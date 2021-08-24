@@ -109,7 +109,12 @@ Master read d5
 ```
 
 # Schematics
-See Schematics folder
+(For details see schematics folder)
+
+* Connect Master SDA line to Slave SDA line
+* Connect Master SCL line to Slave SCL line
+* Connect Master GND to Slave GND 
+* Pull SDA and SCL lines high with a 4.7 kOHM pull-up resistor.
 
 
 

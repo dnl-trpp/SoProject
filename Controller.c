@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
                     printf("Command sent sucesfully\n");
                 }
                 else{
-                    printf("Master had troubles sending this command\n");
+                    printf("Master had troubles sending this command, ErrorCode:%hhx\n",r);
                 }
             }
         }
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
                 printf("Command sent sucesfully\n");
             }
             else{
-                printf("Master had troubles sending this command\n");
+                printf("Master had troubles sending this command, ErrorCode:%hhx\n",r);
             }
 
         }
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
                     printf("Master read %x\n",r);
                 }
                 else{
-                    printf("Master had troubles sending this command\n");
+                    printf("Master had troubles sending this command, ErrorCode:%hhx\n",r);
                 }
             }
         }
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
                 printf("Command sent sucesfully\n");
             }
             else{
-                printf("Master had troubles sending this command\n");
+                printf("Master had troubles sending this command, ErrorCode:%hhx\n",r);
             }
 
         }

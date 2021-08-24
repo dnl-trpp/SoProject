@@ -10,8 +10,8 @@
 #define APPLY 4
 
 int main(void){
-  
-  printf_init();  // initializes uart
+  cli();
+  usart_init_default();  // initializes uart
   TWIInitMaster();
   sei();
   
