@@ -46,7 +46,13 @@ int main(int argc, char *argv[])
             printf("-- get [addr]\n");
             printf("-- apply\n");
             printf("-- sample\n");
+            printf("-- help\n");
+            printf("-- quit\n");
 
+        }
+        else if (strncmp(command,"quit",4)==0){
+            close(fd);
+            exit(EXIT_SUCCESS); 
         }
 
         //Handle SET
@@ -137,7 +143,7 @@ int main(int argc, char *argv[])
                         perror("Can't read byte from uart\n");
                         return -1;
                     }
-                    printf("Master read %x\n",r);
+                    printf("Master read 0x%x\n",r);
                 }
                 else{
                     printf("Master had troubles sending this command, ErrorCode:%hhx\n",r);
